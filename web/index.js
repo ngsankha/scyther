@@ -9,10 +9,10 @@ try {
 var scytherReady = false;
 
 var handshake = function() {
-    nativeSocket.send({
+    nativeSocket.send(JSON.stringify({
         type: 'handshake',
         value: 'hello scyther native'
-    });
+    }));
 };
 
 var validateHandshake = function(message) {
@@ -26,6 +26,7 @@ var validateHandshake = function(message) {
 };
 
 var handleMessage = function(message) {
+    message = JSON.parse(message);
     switch(message.type) {
         case 'handshake':
             validateHandshake(message);
