@@ -37,10 +37,10 @@ func authorize(w http.ResponseWriter, r *http.Request) {
       break
     }
     log.Printf("recv: %s", message)
-    
+
     res := ScytherMessage{}
     _ = json.Unmarshal(message, &res)
-    
+
     if( res.Type == "handshake" && res.Value == "hello scyther native" ) {
       data := ScytherMessage{"handshake", "hello scyther web"}
       ret, _ := json.Marshal(&data)
