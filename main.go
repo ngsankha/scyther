@@ -37,7 +37,7 @@ func authorize(w http.ResponseWriter, r *http.Request) {
       log.Println("read:", err)
       break
     }
-    
+
     res := ScytherMessage{}
     _ = json.Unmarshal(message, &res)
     log.Printf("Received message type %s, with data %s\n", res.Type, res.Value)
