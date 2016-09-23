@@ -3,6 +3,7 @@ package main
 import (
   "flag"
   "log"
+  "net/rpc"
   "net/http"
   "encoding/json"
   "github.com/gorilla/websocket"
@@ -14,6 +15,7 @@ type ScytherMessage struct {
 }
 
 var HttpAddr = flag.String("http", ":13921", "Host:Port")
+var RcpAddr = flag.String("rcp", ":13922", "RcpHost:Port")
 
 var upgrader = websocket.Upgrader{
     ReadBufferSize:  1024,
@@ -24,6 +26,7 @@ var upgrader = websocket.Upgrader{
 }
 
 func authorize(w http.ResponseWriter, r *http.Request) {
+  var rpcClient *rpc.Client
   isConnected := false
   conn, err := upgrader.Upgrade(w, r, nil)
   if err != nil {
@@ -32,6 +35,7 @@ func authorize(w http.ResponseWriter, r *http.Request) {
   }
   defer conn.Close()
   for {
+    log.Println("For loop started")
     mt, message, err := conn.ReadMessage()
     if err != nil {
       log.Println("read:", err)
@@ -50,6 +54,7 @@ func authorize(w http.ResponseWriter, r *http.Request) {
       if err != nil {
         log.Println("write:", err)
       }
+      continue
     }
 
     if(isConnected) {
@@ -57,7 +62,14 @@ func authorize(w http.ResponseWriter, r *http.Request) {
         case "request":
           go relay(conn, res.Value, mt)
         case "privilige":
-          go get_privilige(conn, res.Value, mt)
+          rpcClient, err = rpc.DialHTTP("tcp", *RcpAddr) 
+          if(err != nil) {
+            log.Fatal(err)
+          } else {
+            log.Print("Here it is\n")
+          }
+          log.Printf("I am connected %s", res.Type)
+          go get_privilige(conn, res.Value, mt, rpcClient)
         default:
           data := ScytherMessage{"response", "No method implemented"}
           ret, _ := json.Marshal(&data)
