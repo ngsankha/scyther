@@ -26,7 +26,7 @@ var validateHandshake = function(message) {
 };
 
 var handleMessage = function(message) {
-    message = JSON.parse(message);
+    message = JSON.parse(message.data);
     switch(message.type) {
         case 'handshake':
             validateHandshake(message);
@@ -52,6 +52,7 @@ nativeSocket.addEventListener('close', function() {
     scytherReady = false;
 });
 
-nativeSocket.addEventListener('message', function() {
+nativeSocket.addEventListener('message', function(msg) {
     // received a message
+    handleMessage(msg);
 });
