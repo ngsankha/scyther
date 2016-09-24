@@ -22,8 +22,9 @@ type Bluetooth int
 
 var blAds []BLAdvertisement
 
-func (t* Bluetooth) Peripheral(args *Args, reply *[]BLAdvertisement) {
+func (t *Bluetooth) Peripheral(args *Args, reply *[]BLAdvertisement) error {
     *reply = blAds
+    return nil
 }
 
 func onStateChanged(d gatt.Device, s gatt.State) {
@@ -46,7 +47,6 @@ func onPeriphDiscovered(p gatt.Peripheral, a *gatt.Advertisement, rssi int) {
     fmt.Println("  TX Power Level    =", a.TxPowerLevel)
     fmt.Println("  Manufacturer Data =", a.ManufacturerData)
     fmt.Println("  Service Data      =", a.ServiceData)
-    fmt.Println(len(blAds))
 }
 
 func main() {

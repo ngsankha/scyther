@@ -35,7 +35,6 @@ func authorize(w http.ResponseWriter, r *http.Request) {
   }
   defer conn.Close()
   for {
-    log.Println("For loop started")
     mt, message, err := conn.ReadMessage()
     if err != nil {
       log.Println("read:", err)
@@ -45,7 +44,7 @@ func authorize(w http.ResponseWriter, r *http.Request) {
     res := ScytherMessage{}
     _ = json.Unmarshal(message, &res)
     log.Printf("Received message type %s, with data %s\n", res.Type, res.Value)
-    
+
     if( res.Type == "handshake" && res.Value == "hello scyther native" ) {
       isConnected = true
       data := ScytherMessage{"handshake", "hello scyther web"}
@@ -58,18 +57,16 @@ func authorize(w http.ResponseWriter, r *http.Request) {
     }
 
     if(isConnected) {
+      log.Printf("I am connected %s", res.Type)
       switch res.Type {
         case "request":
           go relay(conn, res.Value, mt)
-        case "privilige":
-          rpcClient, err = rpc.DialHTTP("tcp", *RcpAddr) 
+        case "privilege":
+          rpcClient, err = rpc.Dial("tcp", *RcpAddr)
           if(err != nil) {
             log.Fatal(err)
-          } else {
-            log.Print("Here it is\n")
           }
-          log.Printf("I am connected %s", res.Type)
-          go get_privilige(conn, res.Value, mt, rpcClient)
+          go get_privilege(conn, res.Value, mt, rpcClient)
         default:
           data := ScytherMessage{"response", "No method implemented"}
           ret, _ := json.Marshal(&data)
